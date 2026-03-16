@@ -18,7 +18,7 @@ This section can be skipped if using our map products directly (see download lin
 
 ### 1. Pre-processing 
 
-* Create folders to store input/output files: e.g., *data/*, *maps/*, *masks/*, *plots/*, ..., etc.
+* Create folders to store input and output files: *data/*, *maps/*, *masks/*, *plots/*, ..., etc.
 * Set up *tables/galaxy_list.csv*: define mask versions and the data sessions to be included for each galaxy
 * Set up *tables/galaxy_mask.csv*: list basic parameters and masking methods to be used for each run
 * Run *add_celestial.py*: add WCS info into all the CALIFA Pipe3D cubes
