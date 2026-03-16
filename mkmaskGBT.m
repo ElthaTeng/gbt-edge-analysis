@@ -1,5 +1,7 @@
 function mkmaskGBT(galname,version,dilation)
 
+% Adapted from code originally written by Alberto Bolatto.
+
 % Uses galaxy parameter file galaxy_mask.csv
 % Methods:
 % - Havfield : uses the Ha intensity and velocity field in CALIFA and
@@ -18,7 +20,7 @@ snrsfrcutoff=6;
 vchw=10; % in km/s
 vspan=1000; % range of velocities for mask cube
 
-gpar=parseCsvTable('galaxy_mask_v5.csv');
+gpar=parseCsvTable('galaxy_mask.csv');
 % This was designed to do one galaxy at a time, but I twisted the logic to
 % enable doing all galaxies in the mask list if no parameters are passed.
 % It's a bit contrived, but it works.
@@ -76,11 +78,11 @@ while nn<ngal
     DEC=p.DEC(strcmp(galname,p.NAME));
     vgal=c*str2double(string(p.Z(strcmp(galname,p.NAME))));
     
-    %r=rfits([ddir fname],'xten3'); % OLD pipe3D setting
+    %r=rfits([ddir fname],'xten3'); % OLD pipe3D setting (for NGC2596)
     r=rfits([ddir fname],'xten5');
     u=permute(r.data,[2 1 3]);
 
-    % OLD pipe3D indices 
+    % OLD pipe3D indices (for NGC2596)
     %Hae=u(:,:,250);
     %Hav=u(:,:,97);
     %Have=u(:,:,301);

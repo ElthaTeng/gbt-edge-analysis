@@ -2,7 +2,7 @@
 
 The repository includes scripts and parameters used in Teng et al. (2026, ApJ submitted) for analyzing the GBT-EDGE survey data.   
 
-This document describes the general workflow after acquiring the reduced CO data, which can be downloaded from the [EDGE team website](https://pages.astro.umd.edu/~bolatto/EDGE/).
+This document describes the general workflow after acquiring the reduced CO data cubes, which can be downloaded from the [EDGE team website](https://pages.astro.umd.edu/~bolatto/EDGE/).
 Our data reduction pipeline is also publicly available [here](https://github.com/teuben/GBT-EDGE).
 
 ## Required data products
@@ -11,7 +11,8 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 * Reduced CO data cubes and/or maps: https://pages.astro.umd.edu/~bolatto/EDGE/#data
 * Mega-table for all the basic and derived parameters: *tables/galaxy_parameters.csv*
 
-## Data pre-processing
+
+## Data Products
 
 * Create folders to store input/output files: *data/*, *maps/*, *masks/*, *plots/*, ..., etc.
 * Set up *tables/galaxy_list.csv*: define mask versions and the data sessions to be included for each galaxy
@@ -30,6 +31,7 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 * The flux rms error maps were already produced via *autorunGBTmaps.py* and *runORmaps.py*  
 * *fake_source_loop.py*: produce additional error estimatation via a "fake source test" to account for baseline variations and masking uncertainties
 
+
 ## Scientific Analyses
 
 ### 1. CALIFA-related quantities
@@ -41,6 +43,7 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 * *flux-compare.py*: compare integrated fluxes between 9 overlapping galaxies from the GBT and ACA sample
 
 ### 3. Figures and visualization (scripts in *visualization/*)
+* *retrieve-sdss.m*: retrieve SDSS 3-color images from NASA Atlas for all galaxies in *galaxy_list.csv*
 * *xxx-gallery.py*: generate a gallery of maps for all galaxies (sdss, tpeak, mom0, mom1, mom2)
 * *sfr-aco-plots.py*: generate the figures that compare global SFRs and alpha_CO using various methods/prescriptions  
 * *KS-plot.py*: generate the SFR-M_mol relation plots 
@@ -50,4 +53,4 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 
 If you use or reference these script(s) in your work, please cite the following paper:
 
-* Teng et al., "The EDGE–CALIFA Survey: Star Formation Efficiency and Galaxy Quenching across 62 Main Sequence, Green Valley, and Red Galaxies", 2026, submitted to *The Astrophysical Journal (ApJ)*. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/accb86) 
+* Teng et al., "The EDGE–CALIFA Survey: Star Formation Efficiency and Galaxy Quenching across 62 Main Sequence, Green Valley, and Red Galaxies", 2026, submitted to *The Astrophysical Journal (ApJ)*. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/ad10ae) 
