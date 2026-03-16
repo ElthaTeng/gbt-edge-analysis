@@ -79,7 +79,8 @@ for i, row in enumerate(T):
     
     mapi        = fits.open(filepath)[0]
     wcs_map     = WCS(mapi.header)
-    mapdata     = mapi.data / fits.open('maps/'+row['Galaxy']+'_12CO_rmsmap_se'+row['Session']+'_specsm6.fits')[0].data   #    
+    # divide the Tpeak map by the rms map to get a peak S/N map for better visualization
+    mapdata     = mapi.data / fits.open('maps/'+row['Galaxy']+'_12CO_rmsmap_se'+row['Session']+'_specsm6.fits')[0].data      
 
     vmini = 1 #np.nanpercentile(mapdata, 20)  
 
