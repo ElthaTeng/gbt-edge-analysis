@@ -17,9 +17,6 @@ def get_mask(source, method, session, version, broad=False, write_fits=False):
     new_header = hdu_data.header.copy() 
     data = hdu_data.data
 
-    # rms = mad_std(data, axis = None, ignore_nan = True)
-    # rms = mad_std(data[data < 3*rms], axis = None, ignore_nan = True)
-
     rms_map = mad_std(data, axis = 0, ignore_nan = True)
     rms_cube = np.repeat(rms_map[np.newaxis, :, :], data.shape[0], axis=0)
     data_noise = np.copy(data)
@@ -29,21 +26,14 @@ def get_mask(source, method, session, version, broad=False, write_fits=False):
 
     if method=='datacube':
 
-        #start with a mask covering all > X sigma voxels
+        #start with a mask covering all > 2.5 sigma voxels
         rms_cube_new = np.repeat(rms_map_new[np.newaxis, :, :], data.shape[0], axis=0)
         
-        mask = np.array(data > 2.5 * rms_cube_new, dtype = int) if broad else np.array(data > 3 * rms_cube_new, dtype = int)  # testing to compare 2 vs 2.5 vs 3 sigma
+        mask = np.array(data > 2.5 * rms_cube_new, dtype = int) if broad else np.array(data > 3 * rms_cube_new, dtype = int)  
 
         #remove spikes
         mask = mask & (np.roll(mask, 1, 0)|np.roll(mask, -1, 0))
         
-        #expand mask to adjacent voxels with > Y sigma 
-        # mask_low = np.array(data > 2*rms_cube_new, dtype = int)  
-
-        # for kk in range(20):
-        #     mask = np.array(((mask + np.roll(mask,1,0) + np.roll(mask,-1,0)) >= 1), dtype = int) * mask_low
-        #     mask = np.array(((mask + np.roll(mask,(0,1,1)) + np.roll(mask,(0,-1,-1))) >= 1), dtype = int) * mask_low
-
         new_mask = np.copy(mask)
 
         if write_fits:
@@ -58,7 +48,7 @@ def get_mask(source, method, session, version, broad=False, write_fits=False):
         new_mask[np.isnan(new_mask)] = 0
 
         if write_fits:
-            fits.writeto('masks/'+source+'_mask_reprojected_'+method+'_se'+session+'.fits', new_mask, new_header, overwrite=True)  #'_se'+session+
+            fits.writeto('masks/'+source+'_mask_reprojected_'+method+'.fits', new_mask, new_header, overwrite=True)  #'_se'+session+
     
     # Create mom0 error maps
     N_masked = np.sum(new_mask, axis=0)
@@ -88,26 +78,13 @@ def expand_mask(source, session, cutoff=0.05, write_fits=False): #only apply thi
 
     new_header = mask.header.copy()
     new_header['BMAJ'] = mask.header['BMAJ'] * 2
-    new_header['BMIN'] = mask.header['BMIN'] * 2
-
-    # mask_fits = fits.open('masks/'+source+'_mask_reprojected_datacube.fits')[0]
-    # mask = mask_fits.data
-    # std = 1.8
-    # gauss_kernel = Gaussian2DKernel(std)
-
-    # for i in range(len(mask)):
-    #     mask[i,:,:] = convolve(mask[i,:,:], gauss_kernel, normalize_kernel=False)
-    
-    # plt.imshow(np.nansum(new_mask, axis=0), origin='lower')  #
-    # plt.colorbar()
-    # plt.show()
+    new_header['BMIN'] = mask.header['BMIN'] * 2    
 
     rms_map = fits.open('maps/'+source+'_12CO_rmsmap_se'+session+'.fits')[0].data
     N_masked = np.sum(new_mask, axis=0)
     emom0 = rms_map * abs(new_header['CDELT3']) * np.sqrt(N_masked)
 
     if write_fits:
-        #mask_conv.write('masks/'+source+'_mask_reprojected_datacube_expand.fits', overwrite=True)
         fits.writeto('masks/'+source+'_mask_reprojected_datacube_expand_se'+session+'.fits', new_mask, new_header, overwrite=True)
         fits.writeto('maps/'+source+'_12CO_emom0_datacube_expand_se'+session+'.fits', emom0, new_header, overwrite=True)
     
@@ -118,7 +95,7 @@ def apply_mask(source, method, session, write_fits=False):  # method='datacube_e
     
     if method=='datacube' or method=='datacube_expand': # 
         mask = fits.open('masks/'+source+'_mask_reprojected_'+method+'_se'+session+'.fits')[0].data
-        mask_block = fits.open('masks/'+source+'_mask_reprojected_block_se'+session+'.fits')[0].data#[:,:,1:]  #_se'+session+'
+        mask_block = fits.open('masks/'+source+'_mask_reprojected_block.fits')[0].data  #_se'+session+'
         block_zeros = np.zeros(len(mask_block), dtype=int)
 
         # identify the channels where 'block' mask is all zeros
@@ -128,33 +105,33 @@ def apply_mask(source, method, session, write_fits=False):  # method='datacube_e
         # chop off channels outside +/- vmaxg (use 'block' mask as reference)
         mask[np.where(block_zeros)] = np.zeros((np.sum(block_zeros), data.shape[1], data.shape[2]))
 
-        # apply a spatial R25 mask in addition to the datacube mask (to cut off near-edge noises), especially needed when get_mask(broad=True) 
-        # mask_R25 = np.sum(mask_block, axis=0)
-        # mask_R25[mask_R25 > 0] = 1
-        # mask = mask * mask_R25
+        # apply a spatial R25 mask in addition to the datacube mask
+        mask_R25 = np.sum(mask_block, axis=0)
+        mask_R25[mask_R25 > 0] = 1
+        mask = mask * mask_R25
 
     else:
-        mask = fits.open('masks/'+source+'_mask_reprojected_'+method+'_se'+session+'.fits')[0].data#[:,:,1:]   #'_se'+session+
+        mask = fits.open('masks/'+source+'_mask_reprojected_'+method+'.fits')[0].data  #'_se'+session+
 
     data_masked = data.data * mask
 
     if write_fits:
-        fits.writeto('data/GBT-masked/'+source+'_12CO_masked_'+method+'_se'+session+'_noR25.fits', data_masked, data.header, overwrite=True)  #_noR25
+        fits.writeto('data/GBT-masked/'+source+'_12CO_masked_'+method+'_se'+session+'.fits', data_masked, data.header, overwrite=True)  #_noR25
     
     return data_masked
 
 
 def get_maps(source, method, session, write_fits=False):
 
-    cube = SpectralCube.read('data/GBT-masked/'+source+'_12CO_masked_'+method+'_se'+session+'_noR25.fits').with_spectral_unit(u.km/u.s)  #_noR25
+    cube = SpectralCube.read('data/GBT-masked/'+source+'_12CO_masked_'+method+'_se'+session+'.fits').with_spectral_unit(u.km/u.s)  #_noR25
     moment_0 = cube.moment(order=0)
     moment_1 = cube.moment(order=1)  
     sigma_map = cube.linewidth_sigma() 
 
     if write_fits:
-        moment_0.write('maps/'+source+'_12CO_mom0_'+method+'_se'+session+'_noR25.fits', overwrite=True)  #_noR25
-        moment_1.write('maps/'+source+'_12CO_mom1_'+method+'_se'+session+'_noR25.fits', overwrite=True)  #_noR25
-        sigma_map.write('maps/'+source+'_12CO_vdisp_'+method+'_se'+session+'_noR25.fits', overwrite=True)  #_noR25
+        moment_0.write('maps/'+source+'_12CO_mom0_'+method+'_se'+session+'.fits', overwrite=True)   #_noR25
+        moment_1.write('maps/'+source+'_12CO_mom1_'+method+'_se'+session+'.fits', overwrite=True)   #_noR25
+        sigma_map.write('maps/'+source+'_12CO_vdisp_'+method+'_se'+session+'.fits', overwrite=True)   #_noR25
 
     return moment_0
 
@@ -176,14 +153,14 @@ def compare_mom0(source, session, save_fig=False, interactive=True):
         ra = ax.coords[0]
         ra.set_major_formatter('hh:mm:ss.s')
   
-        plt.imshow(mom0, origin='lower', cmap='hot', vmin=0)  #, vmax=25
+        plt.imshow(mom0, origin='lower', cmap='hot', vmin=0) 
         cbar = plt.colorbar()
         cbar.ax.tick_params(labelsize=14)
 
         zeros = np.ma.masked_where(~(mom0 == 0), mom0)
         plt.imshow(zeros, origin='lower', cmap='Pastel2_r')
-        plt.annotate('Peak: '+str(np.round(np.nanmax(mom0), 1))+' (K km/s)', (3, 0.91*mom0.shape[0]), xycoords='data', fontsize=12)  #(3, 130)  #(3, 88)
-        plt.annotate('Total: '+str(np.round(np.nansum(mom0), 1))+' (K km/s)', (3, 0.85*mom0.shape[0]), xycoords='data', fontsize=12)  #(3, 120)  #(3, 80)
+        plt.annotate('Peak: '+str(np.round(np.nanmax(mom0), 1))+' (K km/s)', (3, 0.91*mom0.shape[0]), xycoords='data', fontsize=12)  
+        plt.annotate('Total: '+str(np.round(np.nansum(mom0), 1))+' (K km/s)', (3, 0.85*mom0.shape[0]), xycoords='data', fontsize=12)  
 
         plt.tick_params(axis="x", labelsize=14)
         plt.tick_params(axis="y", labelsize=14)

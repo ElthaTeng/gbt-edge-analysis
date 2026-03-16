@@ -2,7 +2,6 @@ from mkGBTmaps import *
 import time
 import numpy as np
 from astropy.io import fits
-import os
 
 def make_2d_gaussian(size_xy, fwhm_xy):
 
@@ -49,14 +48,14 @@ def Mmol(source, mask, session, aco, distance):
     return I_CO, I_CO_err, L_CO
 
 
-galaxy_list = np.genfromtxt('../galaxy_parameters_erik_v2_fix62.csv', delimiter=',', skip_header=1, dtype='str')[:,0]
-gbt_session_list = np.genfromtxt('../galaxy_parameters_erik_v2_fix62.csv', delimiter=',', skip_header=1, dtype='str')[:,5]
+galaxy_list = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1, dtype='str')[:,0]
+gbt_session_list = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1, dtype='str')[:,5]
 create_file = True
 broad_datamask = True
-session = 'loop100_0p05k3b10xlw'
+session = 'loop100'
 num_run = 100
-f_peak = 0.05
-f_size = 3
+f_peak = 1
+f_size = 1
 
 N_gal = galaxy_list.shape[0]
 Ico_ref_list = np.full((N_gal, num_run), np.nan)
@@ -73,23 +72,23 @@ for n_run in range(num_run):
     for n_gal, galaxy in enumerate(galaxy_list):
 
         gbt_session = gbt_session_list[n_gal]
-        hdu_data = fits.open('../data/'+galaxy+'_12CO_rebase7_smooth1.3_hanning2_se'+gbt_session+'.fits')[0]
+        hdu_data = fits.open('data/'+galaxy+'_12CO_rebase7_smooth1.3_hanning2_se'+gbt_session+'.fits')[0]
         print(f'Run {n_run+1}: {galaxy}')
         print(f'Total flux of original cube: {np.nansum(hdu_data.data)} K km/s')    
 
         ## Create datacube with added fake source
         # create a PSF: beam size (8.3"), 60 km/s in fwhm, Tpeak nomalized to 1 
         fwhm_xy = f_size * hdu_data.header['BMAJ']/hdu_data.header['CDELT2']  # ~5.2 pixels
-        fwhm_v = 10 #4  # 15.2 * 4 ~ 60 km/s 
-        size_xy = 31 #21 #13
-        size_v = 21 #9 #
+        fwhm_v = 4  # 15.2 * 4 ~ 60 km/s 
+        size_xy = 13  # ~2x fwhm_xy
+        size_v = 9   # ~2x fwhm_
         psf = f_peak * make_2d_gaussian(size_xy, fwhm_xy)
         gauss1d = make_1d_gaussian(size_v, fwhm_v)
         fake_source = psf[None, :, :] * gauss1d[:, None, None]
         print(f'Fake source total flux: {fake_source.sum()} K km/s')
 
         # randomly select a ppv position within the block_3d mask that ensures full fit of the fake source
-        mask_block = fits.open('../masks/'+galaxy+'_mask_reprojected_block_se'+gbt_session+'.fits')[0].data 
+        mask_block = fits.open('masks/'+galaxy+'_mask_reprojected_block.fits')[0].data  #_se'+gbt_session+' 
         margin_xy = size_xy // 2
         margin_v = size_v // 2
         valid_mask = np.zeros_like(mask_block, dtype=bool)
@@ -125,7 +124,7 @@ for n_run in range(num_run):
 
         ## runORmasks.py   
         mask_expand = fits.open('masks/'+galaxy+'_mask_reprojected_datacube_expand_se'+session+'.fits')[0].data 
-        mask_Hav = fits.open('../masks/'+galaxy+'_mask_reprojected_Havfield_se'+gbt_session+'.fits')[0].data  # _se'+session+' 
+        mask_Hav = fits.open('masks/'+galaxy+'_mask_reprojected_Havfield.fits')[0].data  # _se'+gbt_session+' 
         block_zeros = np.zeros(len(mask_block), dtype=int)
 
         # identify the channels where 'block' mask is all zeros
@@ -135,7 +134,7 @@ for n_run in range(num_run):
         # chop off channels outside +/- vmaxg (use 'block' mask as reference)
         mask_expand[np.where(block_zeros)] = np.zeros((np.sum(block_zeros), hdu_data.shape[1], hdu_data.shape[2]))
 
-        # apply a spatial R25 mask in addition to the datacube mask (to cut off near-edge noises), especially needed when get_mask(broad=True) 
+        # apply a spatial R25 mask in addition to the datacube mask  
         mask_R25 = np.sum(mask_block, axis=0)
         mask_R25[mask_R25 > 0] = 1
         mask = mask_expand * mask_R25
@@ -164,7 +163,7 @@ for n_run in range(num_run):
 
         ## Get theoretical and measured integrated fluxes 
         # Compute theoretical line flux
-        kmom0_fits = fits.open('../maps/'+galaxy+'_12CO_mom0_Havexpand_se'+gbt_session+'.fits')
+        kmom0_fits = fits.open('maps/'+galaxy+'_12CO_mom0_Havexpand_se'+gbt_session+'.fits')
         mom0 = kmom0_fits[0]
         valid = mom0.data > 0  # Exclude negative pixels on mom0 map when computing total flux 
         Abeam = np.pi * (mom0.header['BMAJ']/2) * (mom0.header['BMIN']/2) / np.log(2)  #deg^2
@@ -173,7 +172,7 @@ for n_run in range(num_run):
         Ico_ref_list[n_gal, n_run] = Ico_ideal
 
         # Compute measured line flux
-        distance = np.genfromtxt('../galaxy_parameters_erik_v2_fix62.csv', delimiter=',', skip_header=1)[n_gal, 24]
+        distance = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1)[n_gal, 24]
         Ico, eIco, Lco = Mmol(galaxy, 'Havexpand', session, 4.35, distance)
         Ico_list[n_gal, n_run] = Ico
         eIco_list[n_gal, n_run] = eIco
@@ -181,7 +180,7 @@ for n_run in range(num_run):
 
     print(f'Run {n_run+1} done; took {np.round(time.time() - start_time, 1)} sec.\n')
 
-
+# Save measured total flux (incl. fake source) for each run and each galaxy
 np.save('Ico_list_allruns_'+session+'.npy', Ico_list)
 
 mean_Ico_ref = np.mean(Ico_ref_list, axis=1)
@@ -189,6 +188,7 @@ mean_Ico = np.mean(Ico_list, axis=1)
 mean_eIco = np.mean(eIco_list, axis=1)
 mean_Lco = np.mean(Lco_list, axis=1)
 
+# Save fake source fluxes, mean of the measured fluxes, and errors
 np.savetxt('Ico_ref_list_'+session+'.csv', mean_Ico_ref.reshape(len(galaxy_list),1), delimiter=',')
 np.savetxt('Ico_list_'+session+'.csv', mean_Ico.reshape(len(galaxy_list),1), delimiter=',')
 np.savetxt('Ico_err_list_'+session+'.csv', mean_eIco.reshape(len(galaxy_list),1), delimiter=',')

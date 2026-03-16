@@ -9,33 +9,45 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 
 * CALIFA Pipe3D cubes: https://ifs.astroscu.unam.mx/CALIFA/V500/v2.3/pyPipe3D/
 * Reduced CO data cubes and/or maps: https://pages.astro.umd.edu/~bolatto/EDGE/#data
+* Mega-table for all the basic and derived parameters: *tables/galaxy_parameters.csv*
 
-## Pre-processing
+## Data pre-processing
 
-* Set up *galaxy_list.csv*: defines mask versions and the data sessions to be included for each galaxy
-* Set up *galaxy_mask.csv*: lists basic parameters and masking methods to be used for each run
-* Run *add_celestial.py*: adds WCS info into all the CALIFA Pipe3D cubes
+* Create folders to store input/output files: *data/*, *maps/*, *masks/*, *plots/*, ..., etc.
+* Set up *tables/galaxy_list.csv*: define mask versions and the data sessions to be included for each galaxy
+* Set up *tables/galaxy_mask.csv*: list basic parameters and masking methods to be used for each run
+* Run *add_celestial.py*: add WCS info into all the CALIFA Pipe3D cubes
+* Run *pipe3d_combine.py*: combine Pipe3D data for NGC0169 and NGC5929 (interacting galaxy pairs)
 
-## 1. Masks and moment maps
+### 1. Masks and moment maps
 
-* *mkmaskGBT.m*: create CALIFA-based masks for all galaxies using info from *galaxy_mask.csv* 
-* *mkGBTmaps.py*: define the functions needed to run *autorunGBTmaps.py* (no need to run this)
+* *mkmaskGBT.m*: create CALIFA-based masks for all galaxies using info from *tables/galaxy_mask.csv* 
+* *mkGBTmaps.py*: define the functions needed to run *autorunGBTmaps.py* 
 * *autorunGBTmaps.py*: apply masks to CO data cubes and produce resulting moment maps for all galaxies 
-* *runORmasks.py*: create the combined "Hα + CO-dilated" masks and resulting moment maps for all galaxies 
+* *runORmasks.py*: create the combined "Hα + CO-dilated" masks and produce resulting moment maps for all galaxies 
 
-## 2. Error estimation
-* The flux rms error maps are already produced via *autorunGBTmaps.py* and *runORmaps.py*  
-* *fake_source_loop.py*: produce additional error estimates via a `fake source' test to account for baseline variations and masking effects
+### 2. Error estimation
+* The flux rms error maps were already produced via *autorunGBTmaps.py* and *runORmaps.py*  
+* *fake_source_loop.py*: produce additional error estimatation via a "fake source test" to account for baseline variations and masking uncertainties
 
-## 3. CALIFA-related quantities
+## Scientific Analyses
+
+### 1. CALIFA-related quantities
 * *sfr-from-sfh.py*: compute SFRs using star formation history based on CALIFA Pipe3D
-* *fit_Zprime_gradient.py*: compute best-fit radial metallicity gradient for each galaxy based on Curti et al. log(O/H) maps
+* *fit_Zprime_gradient.py*: compute best-fit radial metallicity gradient for each galaxy using Curti+2017 calibrated 12+log(O/H) maps
 
-## 4. CO-related inegrated quantities
+### 2. CO-related inegrated quantities
 * *compare-tdep_loop.py*: compute integrated CO flux, H2 mass, Hα-based SFR, and gas depletion time for each galaxy (via various α_CO prescriptions) 
-* *flux-compare.py*: compare integrated flux between 9 overlapping galaxies from the GBT and ACA sample
+* *flux-compare.py*: compare integrated fluxes between 9 overlapping galaxies from the GBT and ACA sample
 
-## Figures and visualization
-* *xxx-gallery.py*: generate a figure demonstrating certain type of maps (e.g. mom0, tpeak, sdss) for all the galaxies  
+### 3. Figures and visualization (scripts in *visualization/*)
+* *xxx-gallery.py*: generate a gallery of maps for all galaxies (sdss, tpeak, mom0, mom1, mom2)
+* *sfr-aco-plots.py*: generate the figures that compare global SFRs and alpha_CO using various methods/prescriptions  
 * *KS-plot.py*: generate the SFR-M_mol relation plots 
-* *SFMS-plot.py*: generate the SFR-M* plot, histograms for t_dep, and the dSFMS-t_dep relation plots
+* *SFMS-plot.py*: generate the SFR-M_star plot, histograms for t_dep, and the ΔSFMS-t_dep relation plots
+
+## Reference & Citation
+
+If you use or reference these script(s) in your work, please cite the following paper:
+
+* Teng et al., "The EDGE–CALIFA Survey: Star Formation Efficiency and Galaxy Quenching across 62 Main Sequence, Green Valley, and Red Galaxies", 2026, submitted to *The Astrophysical Journal (ApJ)*. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/accb86) 

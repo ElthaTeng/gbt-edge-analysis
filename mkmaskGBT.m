@@ -1,7 +1,5 @@
 function mkmaskGBT(galname,version,dilation)
 
-%[Eltha] before running, do: addpath('./MATLAB') and addpath('C:/Program Files/7-Zip')
-
 % Uses galaxy parameter file galaxy_mask.csv
 % Methods:
 % - Havfield : uses the Ha intensity and velocity field in CALIFA and
@@ -11,8 +9,8 @@ function mkmaskGBT(galname,version,dilation)
 %              at vmaxg km/s and produces two masks for 180 deg rotation
 %              orientations with the geometry provided. Intended for cases
 %              where the Ha velocities are bad.
-% - flat     : masks using an Ha intensity threshold and -/+ vmaxg km/s
-% - block    : masks the R25 region over -/+ vmaxg km/s
+% - flat     : masks using an Ha intensity threshold and -/+ 2*vmaxg km/s
+% - block    : masks the R25 region over -/+ 2*vmaxg km/s
 
 
 snrvcutoff=500; % funky V SNR in CALIFA cubes

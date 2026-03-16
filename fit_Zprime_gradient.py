@@ -9,7 +9,7 @@ import astropy.units as u
 from astropy.coordinates import Angle
 from scipy.optimize import curve_fit
 
-table_gbt = np.genfromtxt('galaxy_parameters_erik_v2_fix62.csv', delimiter=',', skip_header=1, dtype='str')
+table_gbt = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1, dtype='str')
 table_ecaliga = np.genfromtxt('ecalifa_global.csv', delimiter=',', skip_header=118, dtype='str')
 
 def power_law(X, a, b):
@@ -115,7 +115,6 @@ for i, gal in enumerate(galaxies):
     keywords_to_remove = ['NAXIS3', 'CTYPE3', 'CRPIX3', 'CRVAL3', 'CDELT3', 'CUNIT3']
     for key in keywords_to_remove:
         del pipe3d_header_2d[key]
-    #print(WCS(pipe3d_header_2d))
 
     # Get deprojected radii map (in arcsec)
     ra = table_ecaliga[table_ecaliga[:,1]==gal][0,2] + 'd'
@@ -127,7 +126,7 @@ for i, gal in enumerate(galaxies):
     wcs = WCS(pipe3d_header_2d)
     dshape = Zprime.shape
     radii_map = radius_arcsec(dshape, wcs, angles[0], angles[1], angles[2], angles[3])
-    #np.save('maps/radii_maps/'+gal+'_radii_map.npy', radii_map)
+    np.save('maps/radii_maps/'+gal+'_radii_map.npy', radii_map)
 
     # fit Zprime-radius relation
     valid = ~np.isnan(Zprime)
@@ -150,7 +149,7 @@ for i, gal in enumerate(galaxies):
     plt.tick_params(axis="x", labelsize=14, labelbottom=True)
     plt.xlabel('Radius (arcsec)', fontsize=16) 
     plt.ylabel(r'log (Z / Z$_\odot$)', fontsize=16)
-    #plt.savefig('plots/fit_Zprime_gradient/'+gal+'_Zvsr_fitting_Curti.png', bbox_inches='tight', pad_inches=0.02)
+    plt.savefig('plots/fit_Zprime_gradient/'+gal+'_Zvsr_fitting_Curti.png', bbox_inches='tight', pad_inches=0.02)
     plt.clf()
 
 np.save('bestfit_Zprime_gradient_Curti_fix62.npy', bestfit_Z2r)

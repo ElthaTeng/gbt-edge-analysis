@@ -5,7 +5,12 @@ from astropy.wcs import WCS
 from reproject import reproject_interp
 import warnings
 
-def Mmol(source, mask, session, aco, gbtnatv=True, ratio=1): 
+
+### SET THE ALPHA_CO PRESCRIPTION: 'const', 'B13_Zgrad', 'SL24_Zgrad', or 'T24' 
+aco_choice = 'const'  
+
+
+def Mmol(source, mask, session, aco): 
     
     kmom0_fits = fits.open('maps/'+source+'_12CO_mom0_'+mask+'_se'+session+'.fits')
     mom0 = kmom0_fits[0]
@@ -22,25 +27,14 @@ def Mmol(source, mask, session, aco, gbtnatv=True, ratio=1):
 
     emom0 = fits.open('maps/'+source+'_12CO_emom0_'+mask+'_se'+session+'.fits')[0]
     I_CO_err = np.nansum(emom0.data[valid]) / Npixperbeam  #
-    Mmol_err = I_CO_err * Omega_beam * (1e6*distance)**2 * aco
+    Mmol_err = I_CO_err * Omega_beam * (1e6*distance)**2 * aco 
     
-    # jycube = fits.open('data/'+source+'_12CO_rebase5_smooth1.3_hanning2_se'+session+'_Jykms.fits')
-    # if gbtnatv and mask != 'Havexpand':
-    #     mask = fits.open('masks/'+source+'_mask_reprojected_'+mask+'.fits') 
-    # else:
-    #     mask = fits.open('masks/'+source+'_mask_reprojected_'+mask+'_se'+session+'.fits') 
-    
-    # I_CO_Jy = np.nansum(jycube[0].data * mask[0].data) * abs(jycube[0].header['CDELT3']) / Npixperbeam #* Omega_beam
-    # Mmol_jycube = 1.05e4 * I_CO_Jy * (distance)**2 / (1 + z) * aco / 4.35 / ratio
-    
-    print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  # = {I_CO_Jy} Jy km/s
+    print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  
     print(f'L_tot = {L_CO} K km/s pc2')
     print(f'M_mol (using K cube) = {Mmol_kcube} +/- {Mmol_err} Msun')
-    #print(f'M_mol (using Jy cube) = {Mmol_jycube} Msun \n')
     
     tdep_kcube = Mmol_kcube / SFR_tot * 1e-9
     print(f't_dep (using K cube) = {tdep_kcube} Gyr \n')
-    #print(f't_dep (using Jy cube) = {Mmol_jycube / SFR_tot * 1e-9} Gyr \n')
     etdep_kcube = Mmol_err / SFR_tot * 1e-9
 
     return Mmol_kcube, Mmol_err, tdep_kcube, etdep_kcube, L_CO
@@ -129,7 +123,6 @@ def Mmol_B13(source, mask, session, metallicity=False, gradient=False):
     keywords_to_remove = ['NAXIS3', 'CTYPE3', 'CRPIX3', 'CRVAL3', 'CDELT3', 'CUNIT3']
     for key in keywords_to_remove:
         del pipe3d_header_2d[key]
-    #print(pipe3d_header_2d)
 
     aco_B13_regrid, footprint = reproject_interp((aco_B13, pipe3d_header_2d), gbt_header, order='nearest-neighbor')
 
@@ -162,8 +155,8 @@ def Mmol_B13(source, mask, session, metallicity=False, gradient=False):
         Mmol_tot = np.nansum(Mmol_kcube) / Npixperbeam 
         Mmol_err_tot = np.nansum(Mmol_err) / Npixperbeam       
     
-    # print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  # = {I_CO_Jy} Jy km/s
-    # print(f'L_tot = {L_CO} K km/s pc2')
+    print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  
+    print(f'L_tot = {L_CO} K km/s pc2')
     print(f'M_mol (using K cube) = {Mmol_tot} +/- {Mmol_err_tot} Msun')
     
     tdep_tot = Mmol_tot / SFR_tot * 1e-9
@@ -240,7 +233,6 @@ def Mmol_SL24(source, mask, session, gradient=False):
     keywords_to_remove = ['NAXIS3', 'CTYPE3', 'CRPIX3', 'CRVAL3', 'CDELT3', 'CUNIT3']
     for key in keywords_to_remove:
         del pipe3d_header_2d[key]
-    #print(pipe3d_header_2d)
 
     aco_SL24_regrid, footprint = reproject_interp((aco_SL24, pipe3d_header_2d), gbt_header, order='nearest-neighbor')
 
@@ -272,8 +264,9 @@ def Mmol_SL24(source, mask, session, gradient=False):
     else:
         Mmol_tot = np.nansum(Mmol_kcube) / (Npixperbeam * completeness)
         Mmol_err_tot = np.nansum(Mmol_err) / (Npixperbeam * completeness)
-    # print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  # = {I_CO_Jy} Jy km/s
-    # print(f'L_tot = {L_CO} K km/s pc2')
+    
+    print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  
+    print(f'L_tot = {L_CO} K km/s pc2')
     print(f'M_mol (using K cube) = {Mmol_tot} +/- {Mmol_err_tot} Msun')
     
     tdep_tot = Mmol_tot / SFR_tot * 1e-9
@@ -291,7 +284,7 @@ def Mmol_T24(source, mask, session):
     kmom0_fits = fits.open('maps/'+source+'_12CO_mom0_'+mask+'_se'+session+'.fits')
     mom0 = kmom0_fits[0].data
 
-    aco_T24 = 10**(-0.96 * np.log10(vdisp) + 1.77)  # old: y = -0.56 x + 1.19
+    aco_T24 = 10**(-0.96 * np.log10(vdisp) + 1.77)  
     I_CO = np.copy(mom0)
     I_CO[mom0 <= 0] = np.nan  # Mask out zero and negative pixels
 
@@ -317,8 +310,8 @@ def Mmol_T24(source, mask, session):
     Mmol_tot = np.nansum(Mmol_kcube) / (Npixperbeam * completeness)
     Mmol_err_tot = np.nansum(Mmol_err) / (Npixperbeam * completeness)
     
-    # print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s')  # = {I_CO_Jy} Jy km/s
-    # print(f'L_tot = {L_CO} K km/s pc2')
+    print(f'I_tot = {I_CO} +/- {I_CO_err} K km/s') 
+    print(f'L_tot = {L_CO} K km/s pc2')
     print(f'M_mol (using K cube) = {Mmol_tot} +/- {Mmol_err_tot} Msun')
     
     tdep_tot = Mmol_tot / SFR_tot * 1e-9
@@ -328,20 +321,14 @@ def Mmol_T24(source, mask, session):
     return Mmol_tot, Mmol_err_tot, tdep_tot, etdep_tot, completeness
 
 
-### SET THESE !!
-gal_list_version = 'erik_v2_fix62'
-aco_choice = 'T24' # 'const' 'B13' 'B13_Zgrad' 'SL24_Zgrad' 'T24'
-
-
-table_gbt = np.genfromtxt('galaxy_parameters_'+gal_list_version+'.csv', delimiter=',', skip_header=1, dtype='str')
+table_gbt = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1, dtype='str')
 source_list = list(table_gbt[:, 0]) 
 session_list = list(table_gbt[:, 5])
-method_list = list(table_gbt[:, 7]) # blockpref [:, 6]  # datapref [:, 7]
+method_list = list(table_gbt[:, 7]) 
 
 catalog = np.genfromtxt('edge_califa.csv', delimiter=',', skip_header=61, dtype='str')
 inclinations = np.array(table_gbt[:, 3], dtype='float')
 
-dict_version = {'Havfield': 'v1', 'flat': 'v2', 'block': 'v3', 'rotnoHa+': 'v4', 'rotnoHa-': 'v4'}
 N_gal = np.array(source_list).shape[0]
 Mmol_list = np.full((N_gal,), np.nan)
 eMmol_list = np.full((N_gal,), np.nan)
@@ -351,16 +338,9 @@ complete_list = np.full((N_gal,), np.nan)
 
 for n, (source, session, method) in enumerate(zip(source_list, session_list, method_list)):
 
-    # if method == 'Havexpand' or method == 'datacube_expand':
-    #     mask_pipe3d = fits.open('masks/mask_pipe3d_'+source+'_Havexpand.fits')[0]
-    # else:
-    #     version = dict_version[method]
-    #     mask_pipe3d = fits.open('masks/from_matlab/mask_'+source+'_'+method+'_'+version+'.fits')[0] 
     mask_pipe3d = fits.open('masks/from_matlab/mask_'+source+'_block_v3.fits')[0]       
 
-    #hdu_data = fits.open('data/'+source+'_12CO_rebase5_smooth1.3_hanning2_se'+session+'.fits')[0]
     coord_ref = fits.open('masks/from_matlab/mask_'+source+'_Havfield_v1.fits')[0]
-    #print(hdu_data.data.shape, hdu_mask.data.shape)
 
     inclination = inclinations[n]
 
@@ -382,9 +362,6 @@ for n, (source, session, method) in enumerate(zip(source_list, session_list, met
     v_Ha[nonsf] = np.nan
 
     pc2cm = 3.08567758128e18
-    # c = 299792.458  #km/s
-    # z = 0.0149
-    # H0 = 67.8
     distance = catalog[catalog[:,1]==source][0,34].astype('float')  #c * z / H0  #Mpc
     A_sphere = 4 * np.pi * (distance * 1e6 * pc2cm)**2  #cm2
 
@@ -405,7 +382,7 @@ for n, (source, session, method) in enumerate(zip(source_list, session_list, met
     cb.ax.tick_params(labelsize=14)
     plt.xlabel('R.A. (J2000)', fontsize=16) 
     plt.ylabel('Decl. (J2000)', fontsize=16) 
-    #plt.savefig('plots/AHa_SFR_maps/'+source+'_AHa_block_se'+session+'.pdf', bbox_inches='tight', pad_inches=0.02)
+    plt.savefig('plots/AHa_SFR_maps/'+source+'_AHa_block_se'+session+'.pdf', bbox_inches='tight', pad_inches=0.02)
     plt.clf()
 
     # SFR map
@@ -423,7 +400,7 @@ for n, (source, session, method) in enumerate(zip(source_list, session_list, met
     cb.ax.tick_params(labelsize=14)
     plt.xlabel('R.A. (J2000)', fontsize=16) 
     plt.ylabel('Decl. (J2000)', fontsize=16) 
-    #plt.savefig('plots/AHa_SFR_maps/'+source+'_SFR_block_se'+session+'.pdf', bbox_inches='tight', pad_inches=0.02)
+    plt.savefig('plots/AHa_SFR_maps/'+source+'_SFR_block_se'+session+'.pdf', bbox_inches='tight', pad_inches=0.02)
     plt.clf()
 
     print(source + ':')
@@ -435,8 +412,6 @@ for n, (source, session, method) in enumerate(zip(source_list, session_list, met
     # Run M_mol, t_dep calculations
     if aco_choice == 'const':
         M_mol, M_mol_err, t_dep, t_dep_err, completeness = Mmol(source, method, session, 4.35) 
-    # elif aco_choice == 'B13':
-    #     M_mol, M_mol_err, t_dep, t_dep_err, completeness = Mmol_B13(source, method, session, metallicity=True, gradient=False)
     elif aco_choice == 'B13_Zgrad':
         M_mol, M_mol_err, t_dep, t_dep_err, completeness = Mmol_B13(source, method, session, metallicity=True, gradient=True)
     elif aco_choice == 'SL24_Zgrad':
@@ -452,22 +427,20 @@ for n, (source, session, method) in enumerate(zip(source_list, session_list, met
     etdep_list[n] = t_dep_err
     complete_list[n] = completeness
 
-np.save('Mmol_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.npy', Mmol_list)
-np.save('Mmol_err_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.npy', eMmol_list)
-np.save('tdep_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.npy', tdep_list)
-np.save('tdep_err_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.npy', tdep_list)
+# Save each output as an individual npy array and csv list
+np.save('Mmol_galaxy_list_sfrblk_datapref_'+aco_choice+'.npy', Mmol_list)
+np.save('Mmol_err_galaxy_list_sfrblk_datapref_'+aco_choice+'.npy', eMmol_list)
+np.save('tdep_galaxy_list_sfrblk_datapref_'+aco_choice+'.npy', tdep_list)
+np.save('tdep_err_galaxy_list_sfrblk_datapref_'+aco_choice+'.npy', tdep_list)
 
-np.savetxt('Mmol_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.csv', Mmol_list.reshape(len(source_list),1), delimiter=',')
-np.savetxt('Mmol_err_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.csv', eMmol_list.reshape(len(source_list),1), delimiter=',')
-np.savetxt('tdep_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.csv', tdep_list.reshape(len(source_list),1), delimiter=',')
-np.savetxt('tdep_err_galaxy_list_'+gal_list_version+'_sfrblk_datapref_'+aco_choice+'.csv', etdep_list.reshape(len(source_list),1), delimiter=',')
+np.savetxt('Mmol_galaxy_list_sfrblk_datapref_'+aco_choice+'.csv', Mmol_list.reshape(len(source_list),1), delimiter=',')
+np.savetxt('Mmol_err_galaxy_list_sfrblk_datapref_'+aco_choice+'.csv', eMmol_list.reshape(len(source_list),1), delimiter=',')
+np.savetxt('tdep_galaxy_list_sfrblk_datapref_'+aco_choice+'.csv', tdep_list.reshape(len(source_list),1), delimiter=',')
+np.savetxt('tdep_err_galaxy_list_sfrblk_datapref_'+aco_choice+'.csv', etdep_list.reshape(len(source_list),1), delimiter=',')
 
 if aco_choice == 'T24':
-    np.save('completeness_galaxy_list_'+gal_list_version+'_sfrblk_'+aco_choice+'.npy', complete_list)
-    np.savetxt('completeness_galaxy_list_'+gal_list_version+'_sfrblk_'+aco_choice+'.csv', complete_list.reshape(len(source_list),1), delimiter=',')
+    np.save('completeness_galaxy_list_sfrblk_'+aco_choice+'.npy', complete_list)
+    np.savetxt('completeness_galaxy_list_sfrblk_'+aco_choice+'.csv', complete_list.reshape(len(source_list),1), delimiter=',')
 elif aco_choice == 'const':
-    np.save('Lco_galaxy_list_'+gal_list_version+'_sfrblk_datapref.npy', complete_list)
-    np.savetxt('Lco_galaxy_list_'+gal_list_version+'_sfrblk_datapref.csv', complete_list.reshape(len(source_list),1), delimiter=',')
-
-print(f'M_mol = {np.median(Mmol_list)} + {np.percentile(Mmol_list, 84) - np.median(Mmol_list)} - {np.median(Mmol_list) - np.percentile(Mmol_list, 16)}')
-print(f't_dep = {np.median(tdep_list)} + {np.percentile(tdep_list, 84) - np.median(tdep_list)} - {np.median(tdep_list) - np.percentile(tdep_list, 16)}')
+    np.save('Lco_galaxy_list_sfrblk_datapref.npy', complete_list)
+    np.savetxt('Lco_galaxy_list_sfrblk_datapref.csv', complete_list.reshape(len(source_list),1), delimiter=',')
