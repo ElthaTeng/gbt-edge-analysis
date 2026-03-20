@@ -2,13 +2,13 @@
 
 The repository includes scripts and parameters used in Teng et al. (2026, ApJ submitted) for analyzing the GBT-EDGE survey data.   
 
-This document describes the general workflow after acquiring the reduced CO data cubes, which can be downloaded from the [EDGE team website](https://pages.astro.umd.edu/~bolatto/EDGE/).
+This document describes the general workflow after acquiring the reduced CO data cubes, which can be downloaded from the [EDGE team website](https://www.astro.umd.edu/EDGE/).
 Our data reduction pipeline is also publicly available [here](https://github.com/teuben/GBT-EDGE).
 
 ## Required Data
 
 * CALIFA Pipe3D cubes: https://ifs.astroscu.unam.mx/CALIFA/V500/v2.3/pyPipe3D/
-* Reduced CO data cubes and/or maps: https://pages.astro.umd.edu/~bolatto/EDGE/#data
+* Reduced GBT-EDGE data cubes and/or maps: https://www.astro.umd.edu/EDGE/#data
 * Mega-table for all the basic and derived parameters: *tables/galaxy_parameters.csv*
 
 
