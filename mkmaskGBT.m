@@ -214,12 +214,10 @@ while nn<ngal
             wfits(im,['masks/from_matlab/mask_' galname '_' vmethod '_v' int2str(version) '.fits']);
         case 'block'
             cubemask=zeros(size(vv));
-            %cubemask((abs(vv)<vfac*vmaxg)&(rr25<1))=1;
-            cubemask((abs(vv)<20*vmaxg)&(rr25<1))=1;
+            cubemask((abs(vv)<vfac*vmaxg)&(rr25<1))=1;
             im.data=flip(permute(cubemask,[2 1 3]),3);
             if dilation>0, im.data=imdilate(im.data,se); end
-            %wfits(im,['masks/from_matlab/mask_' galname '_' vmethod '_v' int2str(version) '.fits']);
-            wfits(im,['masks/from_matlab/novmaxg/mask_' galname '_' vmethod '_v' int2str(version) '.fits']);
+            wfits(im,['masks/from_matlab/mask_' galname '_' vmethod '_v' int2str(version) '.fits']);
         case 'rotnoHa'
             ellipsemask=zeros(size(vv));
             ellipsemask((abs(vv)<vfac*vmaxg)&(rr25<1))=1;
