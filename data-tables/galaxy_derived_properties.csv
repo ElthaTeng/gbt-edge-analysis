@@ -1,4 +1,4 @@
-﻿Galaxy,a,b,logL_CO (datapref),logMmol (MW aco),elogL_CO (datapref),aco (B13),aco (SL24),aco (T24*),tdep (datapref),tdep_B13_Z (datapref),tdep_SL24 (datapref),tdep_T24 (datapref)
+﻿Galaxy,a,b,logL_CO (datapref),logMmol (MW aco),elogMmol (MW aco),aco (B13),aco (SL24),aco (T24*),tdep (datapref),tdep_B13_Z (datapref),tdep_SL24 (datapref),tdep_T24 (datapref)
 NGC0001,-3.97E-03,1.01E-01,9.26,9.9,0.17,3.77,3.64,1.95,2.1,1.82,1.76,0.94
 NGC0014,1.70E-03,-1.46E-01,6.88,7.52,0.74,4.85,6.37,5.94,0.95,1.05,1.39,1.29
 NGC0169,-2.86E-03,7.11E-02,9.59,10.2,0.14,3.65,5.1,1.61,8.82,7.39,10.3,3.25
