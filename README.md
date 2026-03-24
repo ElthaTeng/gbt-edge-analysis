@@ -2,7 +2,7 @@
 
 The repository includes scripts and parameters used in Teng et al. (2026, ApJ submitted) for analyzing the GBT-EDGE survey data.   
 
-This document describes the general workflow after acquiring the reduced CO data cubes, which can be downloaded from the [EDGE team website](https://www.astro.umd.edu/EDGE/).
+This document describes the general workflow after acquiring the reduced CO data cubes which can be downloaded from the [EDGE team website](https://www.astro.umd.edu/EDGE/).
 Our data reduction pipeline is also publicly available [here](https://github.com/teuben/GBT-EDGE).
 
 ## Required Data
