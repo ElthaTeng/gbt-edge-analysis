@@ -122,7 +122,10 @@ for i, row in enumerate(T):
 
 
     ### add contours and hatches
-    mask_r25 = fits.open('maps/'+row['Galaxy']+'_12CO_emom0_block_se'+row['Session']+'.fits')[0].data > 0
+    if row['Galaxy']=='UGC04136': # ensure a minimum thickness for this galaxy due to its high inclination
+         mask_r25 = np.sum(fits.open('masks/'+row['Galaxy']+'_mask_thickened_block.fits')[0].data, axis=0) > 0
+    else:
+        mask_r25 = fits.open('maps/'+row['Galaxy']+'_12CO_emom0_block_se'+row['Session']+'.fits')[0].data > 0
     sigma = np.mean(emom0[mask_r25])
     snr = mapdata / emom0
     levelK = [5] # S/N ratio
