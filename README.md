@@ -52,6 +52,7 @@ This section includes analysis code for all the remaining results of the paper (
 * *retrieve-sdss.m*: retrieve SDSS 3-color images from NASA Atlas for all galaxies in *galaxy_list.csv*
 * *tpeak-spec-smooth.py*: spectrally smooth CO data cubes and create Tpeak maps 
 * *xxx-gallery.py*: generate a gallery of maps for all galaxies (sdss, tpeak, mom0, mom1, mom2)
+* *moment_plot.py*: generate and save moment maps + integrated spectra for all galaxies
 * *sfr-aco-plots.py*: generate the figures that compare global SFRs and α_CO using various methods/prescriptions  
 * *KS-plot.py*: generate the SFR-M_mol relation plots 
 * *SFMS-plot.py*: generate the SFR-M_star plot, histograms for t_dep, and the ΔSFMS-t_dep relation plots
