@@ -60,16 +60,16 @@ f_MS = 0.81 * xrange - 8.34
 plt.plot(xrange, f_MS, c='darkblue', ls='--')  #, label='SFMS (Cano-Diaz+16)'
 plt.plot(xrange, 0.86 * xrange - 10.32, c='darkred', ls='--')  #, label='Red galaxies (Cano-Diaz+16)'
 
-plt.fill_between(xrange, f_MS - 0.5, f_MS + 0.7, alpha=0.2, color='tab:blue', label='Main Sequence (43)')
-plt.fill_between(xrange, f_MS - 1, f_MS - 0.5, alpha=0.2, color='tab:green', label='Green Valleys (11)')
-plt.fill_between(xrange, f_MS - 2.5, f_MS - 1, alpha=0.2, color='tab:red', label='Red Galaxies (8)')
+plt.fill_between(xrange, f_MS - 0.5, f_MS + 0.7, alpha=0.2, color='#0072B2', label='Main Sequence (43)')
+plt.fill_between(xrange, f_MS - 1, f_MS - 0.5, alpha=0.1, color='#009E73', label='Green Valleys (11)')  
+plt.fill_between(xrange, f_MS - 2.5, f_MS - 1, alpha=0.3, color='#D55E00', label='Red Galaxies (8)') 
 
 plt.legend(fontsize=12, loc='lower left')
 plt.xlabel(r'$\log\ M_\mathrm{star}$ (M$_\odot$)', fontsize=16) 
 plt.ylabel(r'$\log$ SFR (M$_\odot$ yr$^{-1}$)', fontsize=16)
 plt.ylim(-4, 1.5)
 plt.xlim(8., 11.8)
-plt.savefig('plots/SFMS-plot_full.pdf', bbox_inches='tight', pad_inches=0.02)
+#plt.savefig('plots/SFMS-plot_'+version+'_full_final.pdf', bbox_inches='tight', pad_inches=0.02)
 plt.show()
 
 
@@ -111,10 +111,10 @@ idx_RG = table_gbt[:,14] == 'RG'
 idx_MS = table_gbt[:,14] == 'MS'
 idx_GVRG = table_gbt[:,13] == 'FALSE'
 
-### SET THESE BASED ON ALPHA_CO CHOICE !! 
-tdep = tdep_datapref#_B13_Zgrad
-Mmol = Mmol_datapref#_B13_Zgrad
-etdep_raw = etdep_datapref#_B13_Zgrad
+### SET THESE BASED ON ALPHA_CO CHOICE !!  
+tdep = tdep_datapref#_T24#_Zgrad
+Mmol = Mmol_datapref#_T24#_Zgrad
+etdep_raw = etdep_datapref#_T24#_Zgrad
 
 etdep = np.sqrt((tdep * error_add * 0.01)**2 + etdep_raw**2) 
 
@@ -123,7 +123,7 @@ logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
 
 plt.figure(figsize=(6.4, 2.4))  
 plt.hist(tdep[idx_MS], bins=logbins, histtype='step', color='C0', hatch='//', label='Main Sequence (43)')
-plt.hist(tdep[idx_GV], bins=logbins, histtype='stepfilled', color='C2', alpha=0.5, label='Green Valleys (11)')
+plt.hist(tdep[idx_GV], bins=logbins, histtype='stepfilled', color='C2', hatch="|", edgecolor='w', alpha=0.5, label='Green Valleys (11)')
 plt.hist(tdep[idx_RG], bins=logbins, histtype='stepfilled', color='C3', alpha=0.5, label='Red Galaxies (8)')
 plt.hist(tdep, bins=logbins, histtype='step', color='k', label='Total (62)')
 plt.xscale('log')
@@ -139,7 +139,7 @@ plt.annotate(r'MW $\alpha_\mathrm{CO}$', weight='bold', fontsize=14, xy=(0.05, 0
 plt.xlabel(r'$t_\mathrm{dep}$ (Gyr)', fontsize=16)  
 plt.ylabel('N of galaxies', fontsize=16)
 plt.legend(fontsize=12, loc='upper right')
-plt.savefig('plots/hist_tdep_datapref_MW.pdf', bbox_inches='tight', pad_inches=0.02)
+plt.savefig('plots/hist_tdep_datapref_MW_hatched.pdf', bbox_inches='tight', pad_inches=0.02)
 plt.show()
 
 
@@ -149,17 +149,17 @@ logfmol = np.log10(Mmol) - np.array(logMst_list_gbt, dtype='float')
 valid = tdep > etdep
 
 # Uncomment below ONLY if running "nolab" for B13/SL24
-#plt.figure(figsize=(5.4, 4.8))  
+# plt.figure(figsize=(5.4, 4.8))  
 
 ## xCOLDGASS data
-logsfr_S17 = fits.open('xCOLDGASS_PubCat.fits')[1].data['LOGSFR_BEST']
-logMst_S17 = fits.open('xCOLDGASS_PubCat.fits')[1].data['LOGMSTAR']
-logMmol_S17 = fits.open('xCOLDGASS_PubCat.fits')[1].data['LOGMH2']
-logMmol_lim_S17 = fits.open('xCOLDGASS_PubCat.fits')[1].data['LIM_LOGMH2']
-aco_S17 = fits.open('xCOLDGASS_PubCat.fits')[1].data['XCO_A17']
+logsfr_S17 = fits.open('data/apjsaa97e0/xCOLDGASS_PubCat.fits')[1].data['LOGSFR_BEST']
+logMst_S17 = fits.open('data/apjsaa97e0/xCOLDGASS_PubCat.fits')[1].data['LOGMSTAR']
+logMmol_S17 = fits.open('data/apjsaa97e0/xCOLDGASS_PubCat.fits')[1].data['LOGMH2']
+logMmol_lim_S17 = fits.open('data/apjsaa97e0/xCOLDGASS_PubCat.fits')[1].data['LIM_LOGMH2']
+aco_S17 = fits.open('data/apjsaa97e0/xCOLDGASS_PubCat.fits')[1].data['XCO_A17']
 
 # compute tdep using MW alpha_CO (reversing the Z-based alpha_CO used in S17)
-tdep_S17 = 10**logMmol_S17 / aco_S17 * 4.35 / 10**logsfr_S17 / 1e9  
+tdep_S17 = 10**logMmol_S17 / aco_S17 * 4.35 / 10**logsfr_S17 / 1e9  #
 tdep_lim_S17 = 10**logMmol_lim_S17 / aco_S17 * 4.35 / 10**logsfr_S17 / 1e9  #
 dSFMS_S17 = logsfr_S17 - (0.81 * logMst_S17 - 8.34)
 valid_S17 = dSFMS_S17 > -3
@@ -178,7 +178,7 @@ dSFMS_iedge = np.log10(sfr_iedge) - (0.81 * np.log10(Mst_iedge) - 8.34)
 # apply a S/N > 5 cut on the iEDGE-APEX sample
 valid_iedge = SNR_iedge > 5  
 
-plt.scatter(tdep_iedge[valid_iedge], dSFMS_iedge[valid_iedge], marker='+', c='lightgray', label='iEDGE-APEX')
+plt.scatter(tdep_iedge[valid_iedge], dSFMS_iedge[valid_iedge], marker='+', c='darkgrey', label='iEDGE-APEX')
 
 # GBT-EDGE data
 plt.errorbar(tdep[valid], dSFMS[valid], xerr=etdep[valid], fmt='o', mfc='grey', mec='k', ecolor='grey', elinewidth=1.5)
@@ -189,18 +189,42 @@ plt.scatter(tdep[~valid], dSFMS[~valid], marker='<', c=logfmol[~valid], edgecolo
 cb = plt.colorbar()
 cb.set_label(r'$\log(M_\mathrm{mol}/M_\mathrm{star})$', rotation=270, labelpad=20)
 
+
+# fit quenched galaxies with separate power laws
+from scipy.optimize import curve_fit
+
+def power_law(X, a, b):
+    return a * np.log10(X) + b 
+
+data_x = tdep[valid * (dSFMS < -0.5)]
+data_y = dSFMS[valid * (dSFMS < -0.5)]
+
+ic = [-1, 0.]
+popt, pcov = curve_fit(power_law, data_x, data_y, p0 = ic)
+errors = np.sqrt(np.diagonal(pcov))
+print('Fitted coefficients:', popt) 
+print('Errors:', errors)
+
+xrange_quenched = np.arange(3.5, 1000, 0.5)
+plt.plot(xrange_quenched, power_law(xrange_quenched, popt[0], popt[1]), c='darkred', ls='--', lw=2) #, label='GV/RG (slope: -0.5)'
+
+# Expected main sequence trend with a slope of -1
+plt.plot(np.arange(0.2, 5., 0.01), -np.log10(np.arange(0.2, 5., 0.01)) + 0.2, c='darkblue', ls='-.', lw=2) #, label='MS (slope: -1)'
+
+# Create legend for upper limits
 plt.scatter(np.nan, np.nan, c='dimgrey', marker='<', label=r'CO upper limits')
 
-plt.axhspan(- 0.5, 0.7, alpha=0.2, color='tab:blue', label='Main Sequence')
-plt.axhspan(- 1, - 0.5, alpha=0.2, color='tab:green', label='Green Valleys')
-plt.axhspan(- 2.5, - 1, alpha=0.2, color='tab:red', label='Red Galaxies')
+plt.axhspan(- 0.5, 0.7, alpha=0.2, color='#0072B2', label='Main Sequence')
+plt.axhspan(- 1, - 0.5, alpha=0.1, color='#009E73', label='Green Valleys')  #, hatch="|", edgecolor='w'
+plt.axhspan(- 2.5, - 1, alpha=0.3, color='#D55E00', label='Red Galaxies')  #, hatch="-", edgecolor='w'
+
+plt.annotate(r'MW $\alpha_\mathrm{CO}$', weight='bold', fontsize=14, xy=(0.75, 0.85), xycoords='axes fraction', color='k')
 
 plt.legend(fontsize=10, loc='lower left')
-plt.xlabel(r'$t_\mathrm{dep}$ (Gyr)', fontsize=16) 
+plt.xlabel(r'$t_\mathrm{dep}$ (Gyr)', fontsize=16) #  = $\alpha_\mathrm{CO,MW} \cdot L_\mathrm{CO}$ / SFR
 plt.ylabel(r'$\Delta$ SFMS (dex)', fontsize=16)
 plt.xscale('log')
-plt.xlim(0.005, 2000)  
+plt.xlim(0.005, 2000)  #(-10, 300) (0.01, 2000)
 plt.ylim(-2.7, 1.02)
-plt.savefig('plots/dSFMS-tdep_datapref_errbar_fmol_S17MW_iedgesn5.pdf', bbox_inches='tight', pad_inches=0.02)  #_sfr33m
+plt.savefig('plots/dSFMS-tdep_datapref_errbar_1k1b_fmol_S17MW_iedgesn5_final.pdf', bbox_inches='tight', pad_inches=0.02)  #_sfr33m
 plt.show()
-

@@ -56,9 +56,9 @@ for nameG in galaxies:
 T = Table([galaxies, posang, ras, decs, masks, sessions], names = ('Galaxy', 'pa', 'ra', 'dec', 'Mask', 'Session'))
 
 
-########################
-#### a) Create gallery 
-########################
+######################
+#### a) Create gallery
+######################
 
 ### plot a sqrt colorscale:
 do_norm = False
@@ -80,7 +80,7 @@ for i, row in enumerate(T):
     mapi        = fits.open(filepath)[0]
     wcs_map     = WCS(mapi.header)
     # divide the Tpeak map by the rms map to get a peak S/N map for better visualization
-    mapdata     = mapi.data / fits.open('maps/'+row['Galaxy']+'_12CO_rmsmap_se'+row['Session']+'_specsm6.fits')[0].data      
+    mapdata     = mapi.data / fits.open('maps/'+row['Galaxy']+'_12CO_rmsmap_se'+row['Session']+'_specsm6.fits')[0].data   #    
 
     vmini = 1 #np.nanpercentile(mapdata, 20)  
 
@@ -109,7 +109,7 @@ for i, row in enumerate(T):
     emom0 = fits.open('maps/'+row['Galaxy']+'_12CO_emom0_'+row['Mask']+'_se'+row['Session']+'.fits')[0].data
 
     if row['Galaxy']=='UGC04136': # ensure a minimum thickness for this galaxy due to its high inclination
-         mask_r25 = np.sum(fits.open('masks/'+row['Galaxy']+'_mask_thickened_block.fits')[0].data, axis=0) > 0
+        mask_r25 = np.sum(fits.open('masks/'+row['Galaxy']+'_mask_thickened_block.fits')[0].data, axis=0) > 0
     else:
         mask_r25 = fits.open('maps/'+row['Galaxy']+'_12CO_emom0_block_se'+row['Session']+'.fits')[0].data > 0
 
@@ -120,7 +120,7 @@ for i, row in enumerate(T):
     ax.set_xlabel(' ')
     ax.set_ylabel(' ')
 
- 
+
     ##################################
     ########## CUT THE IMAGE #########
 
@@ -180,7 +180,7 @@ for i, row in enumerate(T):
     
     if i==0:  # Add beam size only on the first panel
         ax.add_patch(rect)
-    
+
         beam = Ellipse((center_beamx, center_beamy), width = b1.value/cdelt1.value, height = b2.value/cdelt2.value, angle = bpa.value,
                         edgecolor = 'black', facecolor = 'black', alpha = 0.9
                         )
@@ -188,14 +188,14 @@ for i, row in enumerate(T):
         ax.add_patch(beam)
 
     labely = row['Galaxy'].upper()
- 
-    ### text position: do it in percent!    
+
+    ### text position: do it in percent!  
+    ax.text(posx1_check + 0.05*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s= labely, color='k', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7)) #
+
     if row['Galaxy'] in ['NGC0932', 'NGC3406NED01', 'NGC5216', 'NGC5631', 'UGC02222', 'UGC03960', 'UGC08234', 'UGC09629']:
-        ax.text(posx1_check + 0.05*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s= labely, color='darkred', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7))
+        ax.text(posx1_check + 0.9*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s='R', color='darkred', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7))
     elif row['Galaxy'] in ['NGC3106', 'NGC3619', 'NGC5157', 'NGC6154', 'NGC6338', 'UGC04136', 'UGC08322', 'UGC10097', 'UGC10905', 'IC0674', 'IC3598']:
-        ax.text(posx1_check + 0.05*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s= labely, color='green', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7))
-    else:
-        ax.text(posx1_check + 0.05*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s= labely, color='k', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7)) #
+        ax.text(posx1_check + 0.9*(posx2_check-posx1_check), posy1_check+0.88*(posy2_check-posy1_check), s='G', color='green', fontweight = 'bold', bbox = dict(boxstyle='square', facecolor='white', alpha=0.7))
 
 
 ###############################
@@ -230,4 +230,4 @@ if do_other_geometry:
 if do_norm:
     savename += '_sqrt'
 
-fig.savefig(savename + '_fix62_specsm6_color_divbyrms_max15.pdf', dpi = 300) #_min0.1
+fig.savefig(savename + '_erik_v2_fix62_specsm6_color_divbyrms_max15_final.pdf', dpi = 300) #_min0.1

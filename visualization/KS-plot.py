@@ -57,11 +57,11 @@ plt.errorbar(logMmol[valid * idx_MS], logSFR[valid * idx_MS], xerr=xerr_MS, fmt=
 plt.scatter(np.log10(Mmol_all)[~valid * idx_MS], logSFR[~valid * idx_MS], c='tab:blue', marker='<') # + eMmol_all
 
 xerr_GV = np.vstack((xerr_low[valid * idx_GV], xerr_high[valid * idx_GV]))
-plt.errorbar(logMmol[valid * idx_GV], logSFR[valid * idx_GV], xerr=xerr_GV, fmt='o', mfc='tab:green', mec='k', ecolor='grey', elinewidth=1.5, label='Green Valleys')
+plt.errorbar(logMmol[valid * idx_GV], logSFR[valid * idx_GV], xerr=xerr_GV, fmt='s', mfc='tab:green', mec='k', ecolor='grey', elinewidth=1.5, label='Green Valleys')
 plt.scatter(np.log10(Mmol_all)[~valid * idx_GV], logSFR[~valid * idx_GV], c='darkgreen', marker='<') # + eMmol_all
 
 xerr_RG = np.vstack((xerr_low[valid * idx_RG], xerr_high[valid * idx_RG]))
-plt.errorbar(logMmol[valid * idx_RG], logSFR[valid * idx_RG], xerr=xerr_RG, fmt='o', mfc='tab:red', mec='k', ecolor='grey', elinewidth=1.5, label='Red Galaxies')
+plt.errorbar(logMmol[valid * idx_RG], logSFR[valid * idx_RG], xerr=xerr_RG, fmt='D', mfc='tab:red', mec='k', ecolor='grey', elinewidth=1.5, label='Red Galaxies')
 plt.scatter(np.log10(Mmol_all)[~valid * idx_RG], logSFR[~valid * idx_RG], c='darkred', marker='<') # + eMmol_all
 
 plt.scatter(np.nan, np.nan, c='grey', marker='<', label=r'CO upper limits')
@@ -75,10 +75,12 @@ plt.text(6.1, -1.7, '0.1 Gyr', fontsize=11, color='k', rotation=40)
 plt.text(6.2, -2.6, '1 Gyr', fontsize=11, color='k', rotation=40)
 plt.text(6.3, -3.5, '10 Gyr', fontsize=11, color='k', rotation=40)
 
+plt.annotate(r'MW $\alpha_\mathrm{CO}$', weight='bold', fontsize=16, xy=(0.75, 0.1), xycoords='axes fraction', color='k')
+
 plt.xlabel(r'$\log\ M_\mathrm{mol}$ (M$_\odot$)', fontsize=16) 
 plt.ylabel(r'$\log$ SFR (M$_\odot$ yr$^{-1}$)', fontsize=16)
 plt.ylim(-4, 1.5)  
 plt.xlim(6., 10.7) 
 plt.legend(fontsize=13, loc='upper left') 
-plt.savefig('plots/KS-plot_'+version+'_grouped_fix62_err1k1b_m1mean.pdf', bbox_inches='tight', pad_inches=0.02)
+plt.savefig('plots/KS-plot_'+version+'_grouped_fix62_err1k1b_m1mean_final.pdf', bbox_inches='tight', pad_inches=0.02)
 plt.show()

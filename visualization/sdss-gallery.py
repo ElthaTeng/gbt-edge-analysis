@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from matplotlib_scalebar.scalebar import ScaleBar
 import os
 
 plotdir = './plots/'
 
-table = np.genfromtxt('galaxy_parameters.csv', delimiter=',', skip_header=1, dtype='str')
+table = np.genfromtxt('galaxy_parameters_erik_v2_fix62.csv', delimiter=',', skip_header=1, dtype='str')
 galaxies = list(table[:,0])
 
 fig = plt.figure(figsize=(12, 14.5))
@@ -22,23 +23,24 @@ for i, gal in enumerate(galaxies):
 
     im = ax.imshow(img)
 
+    scalebar = ScaleBar(0.4, units="''", dimension="angle", box_color='black', color='white', length_fraction=0.25, location="lower right") # 1 pixel = 0.4 arcsec
+    ax.add_artist(scalebar)
+
     ax.tick_params(axis="x", labelsize=14, bottom=False, labelbottom=False)
     ax.tick_params(axis="y", labelsize=14, left=False, labelleft=False)
 
     labely = gal
-    starneed = ['ngc0628', 'ngc4689', 'ngc3521', 'ngc4254', 'ngc5248', 'ngc4941', 'ngc4536', 'ngc4569']
-    labely += r'$\star$' if gal in starneed else ''
 
+    ax.text(0.05*img.shape[1], 0.15*img.shape[0], s= labely, color='w', fontweight = 'bold')
 
     if gal in ['NGC0932', 'NGC3406NED01', 'NGC5216', 'NGC5631', 'UGC02222', 'UGC03960', 'UGC08234', 'UGC09629']:
-        ax.text(0.05*img.shape[1], 0.15*img.shape[0], s= labely, color='r', fontweight = 'bold')
+        ax.text(0.9*img.shape[1], 0.15*img.shape[0], s='R', color='r', fontweight = 'bold')
     elif gal in ['NGC3106', 'NGC3619', 'NGC5157', 'NGC6154', 'NGC6338', 'UGC04136', 'UGC08322', 'UGC10097', 'UGC10905', 'IC0674', 'IC3598']:
-        ax.text(0.05*img.shape[1], 0.15*img.shape[0], s= labely, color='lime', fontweight = 'bold')
-    else:
-        ax.text(0.05*img.shape[1], 0.15*img.shape[0], s= labely, color='w', fontweight = 'bold')
+        ax.text(0.9*img.shape[1], 0.15*img.shape[0], s='G', color='lime', fontweight = 'bold')
+
 
 #####################
 ### save the plot
 savename = os.path.join(plotdir, 'sdss_gallery')
 
-fig.savefig(savename + '_fix62_color.pdf', dpi = 300)
+fig.savefig(savename + '_fix62_color_scalebar.pdf', dpi = 300)
