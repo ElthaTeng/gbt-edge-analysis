@@ -8,7 +8,7 @@ Our data reduction pipeline is also publicly available [here](https://github.com
 ## Required Data
 
 * CALIFA Pipe3D cubes: https://ifs.astroscu.unam.mx/CALIFA/V500/v2.3/pyPipe3D/
-* Reduced GBT-EDGE data cubes and/or maps: https://umd.box.com/v/GBT-EDGE-data
+* Reduced GBT-EDGE data cubes and/or maps: https://doi.org/10.5281/zenodo.20707368
 * Mega-table for all the basic and derived parameters: *data-tables/galaxy_parameters.csv*
 
 
