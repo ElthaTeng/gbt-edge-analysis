@@ -61,4 +61,4 @@ This section includes analysis code for all the remaining results of the paper (
 
 If you use or reference any of these scripts in your work, please cite the following paper:
 
-* Teng et al., "The EDGE–CALIFA Survey: Star Formation Efficiency and Galaxy Quenching across 62 Main Sequence, Green Valley, and Red Galaxies", 2026, *The Astrophysical Journal (ApJ)*. [[paper]](https://iopscience.iop.org/article/10.3847/1538-4357/ad10ae) 
+* Teng et al., "The EDGE–CALIFA Survey: Star Formation Efficiency and Galaxy Quenching across 62 Main Sequence, Green Valley, and Red Galaxies", 2026, *The Astrophysical Journal (ApJ)*. [[paper]](https://arxiv.org/abs/2606.23649) 
